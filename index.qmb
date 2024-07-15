@@ -1,0 +1,94 @@
+---
+title: "COVID-19 Analysis Report"
+author: "Your Name"
+format: html
+---
+
+# Introduction
+
+This report analyzes the COVID-19 pandemic response in Ireland compared to nine other countries.
+
+# Data Preparation
+
+```{python}
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import contextily as ctx
+
+# Load the dataset
+country_data = pd.read_csv('/mnt/data/country_data.csv')
+
+# Select relevant columns for the analysis
+selected_columns = ['location', 'date', 'total_cases', 'new_cases', 'total_deaths', 'new_deaths', 'population']
+country_data = country_data[selected_columns]
+
+# Convert date to datetime
+country_data['date'] = pd.to_datetime(country_data['date'])
+
+# Calculate Case Fatality Rate (CFR)
+country_data['CFR'] = (country_data['total_deaths'] / country_data['total_cases']) * 100
+
+# Aggregate data for summary
+summary = country_data.groupby('location').agg({
+    'total_cases': 'sum',
+    'new_cases': 'sum',
+    'total_deaths': 'sum',
+    'new_deaths': 'sum',
+    'population': 'max'
+}).reset_index()
+
+# Calculate Cases and Deaths per Million
+summary['cases_per_million'] = (summary['total_cases'] / summary['population']) * 1e6
+summary['deaths_per_million'] = (summary['total_deaths'] / summary['population']) * 1e6
+
+# Filter for Ireland data
+ireland_data = country_data[country_data['location'] == 'Ireland']
+
+
+
+
+# World Map Chart
+world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+world = world.merge(summary, how='left', left_on='name', right_on='location')
+ax = world.plot(column='cases_per_million', cmap='OrRd', legend=True, figsize=(15, 10), missing_kwds={'color': 'lightgrey'})
+ctx.add_basemap(ax, crs=world.crs, source=ctx.providers.Stamen.TonerLite)
+plt.title('Total COVID-19 Cases per Million by Country')
+plt.show()
+
+
+
+# Bar Chart
+plt.figure(figsize=(12, 6))
+top_10_cases = summary.sort_values('total_cases', ascending=False).head(10)
+sns.barplot(x='location', y='total_cases', data=top_10_cases)
+plt.title('Top 10 Countries by Total COVID-19 Cases')
+plt.xticks(rotation=45)
+plt.show()
+
+
+
+# Scatterplot with Linear Regression Line
+plt.figure(figsize=(10, 6))
+sns.regplot(x='total_cases', y='total_deaths', data=summary)
+plt.title('Scatterplot of Total Cases vs Total Deaths with Linear Regression Line')
+plt.xlabel('Total Cases')
+plt.ylabel('Total Deaths')
+plt.show()
+
+
+
+# Time-Series Chart for Ireland
+ireland_time_series = ireland_data.groupby('date').agg({
+    'new_cases': 'sum',
+    'new_deaths': 'sum'
+}).reset_index()
+plt.figure(figsize=(12, 6))
+plt.plot(ireland_time_series['date'], ireland_time_series['new_cases'], label='New Cases')
+plt.plot(ireland_time_series['date'], ireland_time_series['new_deaths'], label='New Deaths')
+plt.title('Time-Series of COVID-19 Cases and Deaths in Ireland')
+plt.xlabel('Date')
+plt.ylabel('Count')
+plt.legend()
+plt.show()
