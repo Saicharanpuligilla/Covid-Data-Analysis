@@ -1,0 +1,11 @@
+location,stringency_index,population_density,median_age,aged_65_older,aged_70_older,gdp_per_capita,extreme_poverty,cardiovasc_death_rate,diabetes_prevalence,female_smokers,male_smokers,handwashing_facilities,hospital_beds_per_thousand,life_expectancy,human_development_index
+Denmark,0,136.52,42.3,19.677,12.325,46682.515,0.2,114.767,6.41,19.3,18.8,,2.5,80.9,0.94
+Falkland Islands,,,,,,,,,,,,,,81.44,
+Germany,0,237.016,46.6,21.453,15.957,45229.245,,156.139,8.31,28.2,33.1,,8,81.33,0.947
+Guernsey,,,,,,,,,,,,,,,
+Ireland,0,69.874,38.7,13.928,8.678,67335.293,0.2,126.459,3.28,23,25.7,,2.96,82.3,0.955
+Nigeria,0,209.588,18.1,2.751,1.447,5338.454,,181.013,2.42,0.6,10.8,41.949,,54.69,0.539
+Papua New Guinea,0,18.22,22.6,3.808,2.142,3823.194,,561.494,17.65,23.5,48.8,,,64.5,0.555
+Sierra Leone,0,104.7,19.1,2.538,1.285,1390.3,52.2,325.721,2.42,8.8,41.3,19.275,,54.7,0.452
+Trinidad and Tobago,0,266.886,36.2,10.014,5.819,28763.071,,228.467,10.97,,,89.443,3,73.51,0.796
+Tuvalu,,373.067,,,,3575.104,3.3,,27.25,,,,,67.57,
