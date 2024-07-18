@@ -1,0 +1,104 @@
+title: "COVID-19 Analysis: Ireland and 9 Other Countries"
+author: "Your Name"
+date: "2024-07-14"
+format: 
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-fold: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(scales)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(sf)
+library(viridis)
+Introduction
+The COVID-19 pandemic has been a global crisis of unprecedented scale, affecting nations worldwide in
+complex and multifaceted ways. This comprehensive analysis delves into the intricate web of data surrounding
+the pandemic, offering insights into its progression, impact, and the varied responses across different countries.
+From the stark reality of case numbers and mortality rates to the nuanced interplay of socioeconomic factors
+and public health measures, our dataset paints a vivid picture of a world grappling with an extraordinary
+challenge. By examining metrics such as total cases, vaccination rates, hospital admissions, and positive test
+percentages alongside demographic and economic indicators, we aim to uncover patterns, disparities, and
+potential correlations that can inform our understanding of the pandemic's dynamics. This presentation will
+guide you through a journey of numbers and trends, revealing the story of COVID-19 as it unfolded across
+continents, shaped by local contexts yet united in its global significance.
+
+# Load datasets
+country_metadata <- read_csv("C:/Users/Bikash Kumbhakar/OneDrive/Desktop/FL/July/17.07.24/country_metadata.csv")
+View(country_metadata)
+library(readr)
+country_data <- read_csv("C:/Users/Bikash Kumbhakar/OneDrive/Desktop/FL/July/17.07.24/country_data (1).csv")
+
+
+
+# Inspect datasets
+str(country_data)
+str(country_metadata)
+
+# Check column names
+names(country_data)
+names(country_metadata)
+
+# Merge datasets on 'location'
+combined_data <- merge(country_data, country_metadata, by = 'location')
+
+# Convert date columns to Date type, handle missing values, etc.
+combined_data$date <- ymd(combined_data$date)
+combined_data <- combined_data %>% filter(!is.na(date))
+
+
+Global Overview
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Merge your data with the world map data
+map_data <- merge(world, country_data, by.x = "name", by.y = "location", all.x = TRUE)
+
+# Create the World Map Chart
+ggplot(data = map_data) +
+  geom_sf(aes(fill = total_cases), color = "white") +
+  scale_fill_viridis(option = "plasma", na.value = "grey50") +
+  labs(title = "World Map of Total COVID-19 Cases by Country",
+       fill = "Total Cases") +
+  theme_minimal()
+
+
+
+
+
+This world map provides a global perspective on the total COVID-19 cases. [Describe what the map shows, focusing on Ireland's position relative to other countries.]
+Comparative Analysis
+# Generate a bar chart of total COVID-19 cases by country
+ggplot(summary_data, aes(x = location, y = total_cases, fill = location)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total COVID-19 Cases by Country", x = "Country", y = "Total Cases") +
+  theme_minimal()
+
+
+
+
+This bar chart compares the total COVID-19 cases across the selected countries. [Analyze the data, highlighting Ireland's position. Discuss possible reasons for the differences observed.]
+Relationship Between Variables
+# Generate a scatterplot with a linear regression line
+ggplot(filtered_data, aes(x = date, y = total_cases, color = location)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Scatterplot with Linear Regression Line", x = "Date", y = "Total Cases") +
+  theme_minimal()
+
+
+This scatterplot explores the relationship between time and total cases for each country. [Interpret the trends, focusing on Ireland's trajectory compared to other countries. Discuss what the regression lines indicate about the rate of case growth.]
+Temporal Trends
+# Generate a time-series chart of COVID-19 cases
+ggplot(filtered_data, aes(x = date, y = total_cases, color = location)) +
+  geom_line() +
+  labs(title = "Time-Series Chart of COVID-19 Cases", x = "Date", y = "Total Cases") +
+  theme_minimal()
+This time-series chart shows the progression of COVID-19 cases over time. [Analyze the trends, identifying key periods of growth or decline for Ireland. Compare Ireland's curve to those of other countries, discussing similarities and differences.]
