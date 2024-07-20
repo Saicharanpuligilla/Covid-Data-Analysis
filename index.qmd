@@ -1,0 +1,132 @@
+title: "COVID-19 Analysis: Ireland and 9 Other Countries"
+author: "Your Name"
+date: "2024-07-14"
+format: 
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-fold: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(scales)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(sf)
+library(viridis)
+Introduction
+The study includes various visualizations and a detailed case study of Germany, providing a comprehensive understanding of the pandemics global impact
+CONTENTS :
+INTRODUCTION
+COVID 19 CASES ANALYSIS
+VACCINATION ANALYSIS
+SOCIO ECONOMIC FACTORS
+TRENDS IN CASES
+CONCLUSION.
+COVID-19 pandemic has been a global crisis of unprecedented scale, affecting nations worldwide in complex and multifaceted ways. This comprehensive analysis delves into the intricate web of data surrounding the pandemic, offering insights into its progression, impact, and the varied responses across different countries. From the stark reality of case numbers and mortality rates to the nuanced interplay of socioeconomic factors and public health measures, our dataset paints a vivid picture of a world grappling with an extraordinary challenge. By examining metrics such as total cases, vaccination rates, hospital admissions, and positive test percentages alongside demographic and economic indicators, we aim to uncover patterns, disparities, and potential correlations that can inform our understanding of the pandemic's dynamics. This presentation will guide you through a journey of numbers and trends, revealing the story of COVID-19 as it unfolded across continents, shaped by local contexts yet united in its global significance.
+
+# Load datasets
+country_metadata <- read_csv("C:/Users/saicharan/OneDrive/Desktop/FL/July/17.07.24/country_metadata.csv")
+View(country_metadata)
+library(readr)
+country_data <- read_csv("C:/Users/saicharan/OneDrive/Desktop/FL/July/17.07.24/country_data (1).csv")
+
+
+
+# Inspect datasets
+str(country_data)
+str(country_metadata)
+
+# Check column names
+names(country_data)
+names(country_metadata)
+
+# Merge datasets on 'location'
+combined_data <- merge(country_data, country_metadata, by = 'location')
+
+# Convert date columns to Date type, handle missing values, etc.
+combined_data$date <- ymd(combined_data$date)
+combined_data <- combined_data %>% filter(!is.na(date))
+
+
+GLOBAL OVERVIEW
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Merge your data with the world map data
+map_data <- merge(world, country_data, by.x = "name", by.y = "location", all.x = TRUE)
+
+# Create the World Map Chart
+ggplot(data = map_data) +
+  geom_sf(aes(fill = total_cases), color = "white") +
+  scale_fill_viridis(option = "plasma", na.value = "grey50") +
+  labs(title = "World Map of Total COVID-19 Cases by Country",
+       fill = "Total Cases") +
+  theme_minimal()
+
+
+
+
+
+Figure 1: World Map of Total COVID-19 Cases by Country
+This world map visualizes the distribution of COVID-19 cases globally using a color gradient where darker shades indicate higher case densities.
+Dark purple - representing 10 million cases (1e+07) 10million,
+Yellow - representing 30 million cases (3e+07) 30 million,
+Gray - is rather extensive within Africa, South America, and Asia, in addition to North America and Australia
+Countries with Grey is either missing or the figures, if available, do not cross the minimum value on the color legend. A specific country in Europe stands out in dark blue, indicating it falls within the lower range of cases represented in the legend.
+The projection used does seem to be an equirectangular or a plate carrée where the earth is depicted as a rectangle drastically changing the scale of features nearest to the poles. There is the title “World Map of Total COVID-19 Cases by Country” that indicates the reader what the given visualization is about. The legend is generated for the entire cases and is fixed at the bottom right of the figure to help analyze the color coding. This global visualization entails an easy and swift look at the current status of COVID-19, and where each country stands.
+COMPARATIVE ANALYSIS
+# Generate a bar chart of total COVID-19 cases by country
+ggplot(summary_data, aes(x = location, y = total_cases, fill = location)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total COVID-19 Cases by Country", x = "Country", y = "Total Cases") +
+  theme_minimal()
+
+
+
+
+Figure 2: Total COVID-19 Cases by Country
+This bar chart illustrates the total COVID-19 cases for five countries: Denmark, Falkland Islands, Germany, Guernsey, and Ireland. The chart employs a vertical bar chart format, where the x-axis represents countries and the y-axis represents the total number of cases.
+Germany: The tallest bar in green, approaching a numerical value near 1.00e+10 (10 billion), though this number appears exaggerated and not reflective of global statistics.
+Denmark: A salmon-colored bar, representing a total case count significantly lower than Germany's, approximately around 3.5e+09 (3.5 billion).
+Ireland: A purple-colored bar, with a total case count less than Denmark's, around 2.5e+09 (2.5 billion).
+Falkland Islands: A very small bar, almost invisible on the scale due to a minimal case count, approximately 5.0e+06 (5 million).
+Guernsey: Similarly, a tiny bar indicating a very low case count, also nearly invisible on the scale, around 1.0e+06 (1 million).
+The numbers of cases for such countries as the Falkland Islands and Guernsey are tiny, which means that their bars cannot be seen on the scale presented above. They might be so due to their small number of inhabitants or efficient measures to combat the virus spread; however, the conclusions cannot be made without more information.The y-axis uses scientific notation with increments of 3e+09, 6e+09, and 9e+09, corresponding to 3 billion, 6 billion, and 9 billion respectively. This scale effectively highlights Germany's significantly higher reported cases compared to the other countries, with Denmark and Ireland showing lower but distinguishable case counts. The bars for Falkland Islands and Guernsey illustrate their minimal impact of COVID-19 cases relative to the larger countries on the chart.
+VARIABLES RELATIONSHIP
+# Generate a scatterplot with a linear regression line
+ggplot(filtered_data, aes(x = date, y = total_cases, color = location)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Scatterplot with Linear Regression Line", x = "Date", y = "Total Cases") +
+  theme_minimal()
+
+
+
+Figure 3: Scatterplot with Linear Regression Line
+This scatterplot visualizes the progression of total COVID-19 cases over time for five countries: Denmark, Falkland Islands, Germany, Guernsey, and Ireland. The horizontal axis spans from January 2020 to January 2023, representing the timeline, while the vertical axis displays cumulative incidence in scientific notation, ranging from 0 to 3e+07 (30 million).
+Germany: Highlighted by green points and a green regression line, Germany exhibits a significant and steady increase in COVID-19 cases over time. By 2023, Germany's total cases approach 40 million (4e+07), showing a steep upward trend in the latter half of 2021 or early 2022. The scale of the chart is dominated by Germany, with most data points and regression lines clustered near the lower end of the chart.
+Ireland: Represented by pink dots and a line, Ireland shows a progressive rise in COVID-19 cases, approaching close to 5 million by the year 2023.
+Denmark: Depicted in red, Denmark's trend is similar to Ireland but with lower values, reflecting a slower increase in COVID-19 cases over the same period.
+Guernsey and Falkland Islands: These countries' data points are almost overshadowed on the scale due to their very low numbers of COVID-19 cases, indicating minimal impact compared to Germany, Denmark, and Ireland.
+It is worth noting that the scale of the chart is dominated by Germany and this aspect an observation supported by the fact that and because of this most of the data points and their regression lines are closely located near the lower end of the chart. The numerical trend of Denmark which is in red is nearly similar to Ireland but with lower values. This is why Guernsey and the Falkland Islands’ data points are almost overshadowed on this scale, for they register such low numbers of coronavirus cases. Linear regression lines give a generalized pattern for the evolution of the case numbers for each country. Nevertheless, it is evident that for Germany, and to a certain extent, other countries, the real values are not growing within a fixed trend, and the speed changes with time.
+TEMPORAL TRENDS
+# Generate a time-series chart of COVID-19 cases
+ggplot(filtered_data, aes(x = date, y = total_cases, color = location)) +
+  geom_line() +
+  labs(title = "Time-Series Chart of COVID-19 Cases", x = "Date", y = "Total Cases") +
+  theme_minimal()
+Figure 4: Time-Series Chart of COVID-19 Cases
+This image presents a time-series chart depicting the progression of total COVID-19 cases for five countries: Even Denmark or the Falkland Islands, Germany, Guernsey, and Ireland. The horizontal axis corresponds to the dates starting from 2020 up to 2023, while the vertical axis corresponds to the total cases up to 30 million in scientific notation.
+Germany: The light blue line for Germany shows significant spikes in COVID-19 cases. Starting relatively low in the first quarter of 2020, there is a gradual increase until a notable rise in the middle to end of 2021, followed by a sharp increase in the last quarter of 2021 or early 2022. By 2023, Germany's total cases approach 4e+07 (40 million), far surpassing the numbers for the other countries on the chart.
+However, the other five countries – the Denmark, the Ireland, Guernsey, and the Falkland Island demonstrate much higher corresponding figures during the period under consideration. Technically they are located closer to the Y axis as most of the values are proportional to Germany’s ones.
+Ireland: Represented by the pink line, Ireland's COVID-19 cases show a gradual increase over time, with noticeable upward slopes towards the end of 2021 and early 2022. By 2023, Ireland's total cases are projected to exceed 5 million.
+Denmark: Marked in red, Denmark's trend is similar to Ireland's but with lower case numbers. The line fluctuates with periods of faster increases but does not reach the levels seen in Germany or even Ireland by the end of the timeline.
+Guernsey and Falkland Islands: These countries are depicted with lines indicating very low case numbers throughout the period, demonstrating minimal impact compared to Germany, Denmark, and Ireland.
+Denmark which is marked by red offers more or less the similar trend to that of Ireland but the figures are comparatively lesser. The Danish line appears to rise and fall and has times of faster increase yet does not come anywhere near the numbers of Germany or even Ireland over the timeline. Due to very low cases in Guernsey and in the Falkland Islands. [Analyze the trends, identifying key periods of growth or decline for Ireland. Compare Ireland's curve to those of other countries, discussing similarities and differences.]
+CONCLUSION
+The COVID-19 pandemic has profoundly impacted countries worldwide, as evidenced by the comprehensive data analysis focusing on Germany and comparative nations. Germany stands out with approximately 40 million reported cases by 2023, reflecting a significant burden relative to Ireland and Denmark, which show lower but notable case numbers. In contrast, Guernsey and the Falkland Islands demonstrate minimal impact, likely due to effective containment measures or smaller populations. The analysis, spanning maps, bar charts, scatterplots, and time-series charts, underscores the diverse trajectories of the pandemic across different regions. These findings emphasize the complex interplay of factors influencing COVID-19 dynamics, reinforcing the need for tailored strategies based on specific national contexts to effectively mitigate and manage the ongoing global health crisis.
